@@ -1,5 +1,5 @@
 language: generic
-dist: trusty
+dist: xenial
 sudo: required
 addons:
   apt:
@@ -10,6 +10,7 @@ addons:
     #  - g++-4.8
 
 cache:
+  ccache: true
   directories:
     - $HOME/.npm
     - $TRAVIS_BUILD_DIR/.cache
@@ -18,6 +19,7 @@ before_install:
   - $SHELL --version 2> /dev/null || dpkg -s $SHELL 2> /dev/null || which $SHELL
   - curl --version
   - wget --version
+  - shellcheck --version
 install:
   - if [ -z "${SHELLCHECK-}" ]; then nvm install node && npm install && npm prune && npm ls urchin doctoc eclint dockerfile_lint; fi
   - '[ -z "$WITHOUT_CURL" ] || sudo apt-get remove curl -y'
@@ -34,9 +36,10 @@ before_cache:
   - if [ -n "${NODE-}" ]; then . nvm.sh && set -ex && nvm install --latest-npm "${NODE}" && npm --version; fi
 env:
   global:
-    - CXX=g++-4.8
-    - CC=gcc-4.8
+    - CXX=g++
+    - CC=gcc
     - PATH="$(echo $PATH | sed 's/::/:/')"
+    - PATH="/usr/lib/ccache/:$PATH"
     - NVM_DIR="${TRAVIS_BUILD_DIR}"
   matrix:
     - MAKE_RELEASE=true
